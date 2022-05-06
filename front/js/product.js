@@ -78,21 +78,15 @@ fetch(`http://localhost:3000/api/products/${id}`)
                     getBasket = [];
                     getBasket.push(productSelect); 
                     localStorage.setItem("basket", JSON.stringify(getBasket));
-                    console.log(getBasket);
                     //confirmBasket();
 
                 // Si localStorage contient kanap même id et même color
                 } else if(getBasket != null) {
                     for(let item of getBasket) {
                         if(item.id == productSelect.id && item.color == productSelect.color) {
-                            console.log("même kanap");
                             return (
-                                console.log(item.id),
-                                console.log(item.color),
                                 item.quantity = parseInt(productSelect.quantity) + parseInt(item.quantity),
-                                console.log(item.quantity),
                                 item.price = productSelect.price + item.price,
-                                console.log('prix total de ce kanap: ' + item.price),
                                 localStorage.setItem("basket", JSON.stringify(getBasket))
                             );
                         }
@@ -102,12 +96,8 @@ fetch(`http://localhost:3000/api/products/${id}`)
                     // Si même kanap mais pas même color
                     for(let item of getBasket) {
                         if(item.id == productSelect.id && item.color != productSelect.color) {
-                            console.log("meme kanap mais pas meme color");
                             return (
                                 getBasket.push(productSelect),
-                                console.log(item.id),
-                                console.log(productSelect.color),
-                                console.log(productSelect.price),
                                 localStorage.setItem("basket", JSON.stringify(getBasket)) 
                             );
                         }
@@ -117,9 +107,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
                     // Si localStorage ne contient pas ce kanap
                     for(let item of getBasket) {
                         if(item.id != productSelect.id) {
-                            console.log("nouveau kanap");
                             return ( 
-                                console.log(productSelect.price),
                                 getBasket.push(productSelect),
                                 localStorage.setItem("basket", JSON.stringify(getBasket))
                             ); 

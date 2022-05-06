@@ -5,13 +5,10 @@
 fetch('http://localhost:3000/api/products')
     .then(response => response.json())
     .then(data => {
-        console.log(data);
         
 
         // recuperer les donnees localStorage
         let getBasket = JSON.parse(localStorage.getItem("basket"));
-        console.log(getBasket);
-        console.log(getBasket.length);
 
         // Création partie récapitulatif panier
         let getBasketItems = document.getElementById('cart__items');
@@ -43,7 +40,6 @@ fetch('http://localhost:3000/api/products')
                     </div>
                     </article>`;
                     getBasketItems.innerHTML = panier;
-                    //getBasketItems.insertAdjacentHTML('beforeend', panier);
             };
 
 // ******************************* Actualiser prix et quantité *******************************
@@ -56,15 +52,12 @@ fetch('http://localhost:3000/api/products')
             let articleColor = "";
 
             let changeQuantityAndPrice = () => {
-                console.log("changement prix et quantité");
 
                 // Récuperer les articles dans getBasket 
                 let articleData = document.querySelectorAll('article');
-                console.log(articleData);
 
                 // Récuperer la quantité des articles
                 let itemQuantity = document.querySelectorAll('input.itemQuantity');
-                console.log(itemQuantity);
                 
                     // Variable prix unitaire
                     let articlePrice = "";
@@ -75,24 +68,19 @@ fetch('http://localhost:3000/api/products')
                     // récuperer quantity value
                     itemQuantity.forEach((itemValue) => {
                         itemValue.addEventListener('change', () => {                     
-                            quantityValue = itemValue.value;
-                            console.log(quantityValue);                                    
+                            quantityValue = itemValue.value;                                   
                         })
                     })
 
                     // Récuperer dataset et prix kanap unitaire
                     articleData.forEach((article, i) => {
                         article.addEventListener('change', () => {
-                            console.log(article, i);
                             articleId = article.dataset.id;
-                            console.log(articleId, i);
                             articleColor = article.dataset.color;
-                            console.log(articleColor, i);
 
                             for(let product of data) {
                                 if(product._id == articleId) {
                                     articlePrice = product.price;
-                                    console.log(articlePrice);
                                 }
                             }
 
@@ -101,15 +89,10 @@ fetch('http://localhost:3000/api/products')
                                     getBasket[i].quantity = quantityValue;
                                     getBasket[i].price = document.querySelectorAll('.cart__item__content__description p:last-child')[i].textContent = articlePrice * getBasket[i].quantity;
                                     localStorage.setItem("basket", JSON.stringify(getBasket));
-                                    console.log('Bravo');
                                     totalOrderPrice();
-                                    console.log('encore bravo');
                                 }
                             }
                             document.getElementById('totalPrice').textContent = finalTotalPrice;
-                            // totalOrderPrice();
-                            console.log(finalTotalPrice);
-
                         })
 
                     })
@@ -121,35 +104,25 @@ fetch('http://localhost:3000/api/products')
             let newBasket = [];
 
             let removeKanap = () => {
-                console.log('Remove Kanap');
+
                 // Récupére tous les p class deletItem
                 let deleteKanap = document.querySelectorAll('.deleteItem');
-                console.log(deleteKanap);
                 
                 deleteKanap.forEach((kanap, i) => {
                     kanap.addEventListener('click', () => {
-                        console.log(kanap, i);
                         // Récupére articleId et articleColor au click pour comparer avec getBasket
                         articleId = getBasket[i].id;
                         articleColor = getBasket[i].color;
-                        console.log(articleId);
-                        console.log(articleColor);
                         if (getBasket.length == 1) {
                             localStorage.clear();
-                            console.log('Restait un seul kanap, le localStorage est vide');
                             location.href = "cart.html";
                         } else {
-                            console.log(i);
-                            console.log(getBasket);
                             newBasket = getBasket.filter(el => {
                                 if (articleId != el.id || articleColor != el.color) {
                                     return true;
                                     }
                                 })
-                                console.log('Je suis newBasket');
-                                console.log(newBasket);
                                 localStorage.setItem("basket", JSON.stringify(newBasket));
-                                console.log('remove le kanap cliqué');
                                 location.href = "cart.html";
                             }
                         })
@@ -170,7 +143,7 @@ fetch('http://localhost:3000/api/products')
 // *************************** Calcul prix total *******************************************
 
             let totalOrderPrice = () => {
-                console.log('calcul du montant total'); 
+
                 // Calcul du montant total du panier
                 let totalBasketPrice = [];
 
@@ -178,17 +151,14 @@ fetch('http://localhost:3000/api/products')
                 for(let item of getBasket) {
                     let basketKanapPrice = item.price;
                     totalBasketPrice.push(basketKanapPrice);
-                    console.log(totalBasketPrice);
                 }
 
                 // Addition des prix dans tableau totalBasketPrice avec reduce
                 let reducer = (accumulator, currentValue) => accumulator + currentValue;
                 finalTotalPrice = totalBasketPrice.reduce(reducer, 0);
-                console.log(finalTotalPrice);
 
                 //Nombre d'article dans getBasket
                 let finalTotalQuantity = getBasket.length;
-                console.log(finalTotalQuantity);
 
                 // Insertion du html div cart_price
                 let cart_price = `<div class="cart__price">
@@ -250,7 +220,6 @@ fetch('http://localhost:3000/api/products')
                 let validFirstName = function(inputFirstName) {
                     let firstNameRegExp = new RegExp("^[a-z]+[ \-]?[[a-z]+[ \-]?]*[a-z]+$", "gi");
                         testFirstName = firstNameRegExp.test(inputFirstName.value);
-                        console.log(testFirstName);
 
                 // Récupere message erreur label firstName
                 let msgErrorFirstName = document.getElementById('firstNameErrorMsg');
@@ -278,7 +247,6 @@ fetch('http://localhost:3000/api/products')
                 let validLastName = function(inputLastName) {
                     let lastNameRegExp = new RegExp("^[a-z]+[ \-]?[[a-z]+[ \-]?]*[a-z]+$", "gi");
                         testLastName = lastNameRegExp.test(inputLastName.value);
-                        console.log(testLastName);
 
                 // Récupere message erreur label lastName
                 let msgErrorLastName = document.getElementById('lastNameErrorMsg');
@@ -304,7 +272,6 @@ fetch('http://localhost:3000/api/products')
                 let validAdress = function(inputAdress) {
                     let adressRegExp = new RegExp("^[0-9a-zA-Z,-_. ]+$", "gi");
                         testAdress = adressRegExp.test(inputAdress.value);
-                        console.log(testAdress);
 
                 // Récupere message erreur label adresse
                 let msgErrorAdress = document.getElementById('addressErrorMsg');
@@ -330,7 +297,6 @@ fetch('http://localhost:3000/api/products')
                 let validCity = function(inputCity) {
                     let cityRegExp = new RegExp("^[a-zA-Z-_. ]+$", "gi");
                         testCity = cityRegExp.test(inputCity.value);
-                        console.log(testCity);
 
                 // Récupere message erreur label city
                 let msgErrorCity = document.getElementById('cityErrorMsg');
@@ -356,7 +322,6 @@ fetch('http://localhost:3000/api/products')
                 let validEmail = function(inputEmail) {
                     let emailRegExp = new RegExp('^[a-zA-Z0-9_-]+@[a-zA-Z0-9-]{2,}[.][a-zA-Z]{2,3}$');
                         testEmail = emailRegExp.test(inputEmail.value);
-                        console.log(testEmail);
 
                 // Récupere message erreur label email
                 let msgErrorEmail = document.getElementById('emailErrorMsg');
@@ -382,20 +347,11 @@ fetch('http://localhost:3000/api/products')
                         city: city.value,
                         email: email.value
                     }
-                    console.log(contact);
 
                     let products = [];
-                    let productsType = "";
 
                     for(let item of getBasket) {
                         products.push(item.id);
-                        console.log(products);
-                    }
-
-                    for(let item of products) {
-                        productsType = typeof(item);
-                        console.log(item);
-                        console.log(productsType);
                     }
 
                     // Rassembler les données dans orderData
@@ -403,7 +359,6 @@ fetch('http://localhost:3000/api/products')
                         contact: contact,
                         products: products
                     }
-                    console.log(orderData);
 
                     fetch('http://localhost:3000/api/products/order', {
                         method: 'POST',
@@ -414,8 +369,6 @@ fetch('http://localhost:3000/api/products')
                         })
                         .then(response => response.json())
                         .then(data => {
-                            console.log("J'ai une réponse!");
-                            console.log(data);
                             localStorage.clear();
                             location.href = `confirmation.html?orderId=${data.orderId}`;
                         })

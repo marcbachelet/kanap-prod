@@ -13,6 +13,5 @@ let search_params = new URLSearchParams(urlId.search);
     if (search_params.has('orderId')) {
         orderId = search_params.get('orderId');
     }
-    console.log(orderId);
 
 document.getElementById('orderId').textContent = orderId;
