@@ -90,9 +90,9 @@ fetch('http://localhost:3000/api/products')
                                     getBasket[i].price = document.querySelectorAll('.cart__item__content__description p:last-child')[i].textContent = articlePrice * getBasket[i].quantity;
                                     localStorage.setItem("basket", JSON.stringify(getBasket));
                                     totalOrderPrice();
+                                    document.getElementById('totalPrice').textContent = finalTotalPrice;
                                 }
                             }
-                            document.getElementById('totalPrice').textContent = finalTotalPrice;
                         })
 
                     })
@@ -164,10 +164,11 @@ fetch('http://localhost:3000/api/products')
                 let cart_price = `<div class="cart__price">
                 <p>Total (<span id="totalQuantity">${finalTotalQuantity}</span> articles) : <span id="totalPrice">${finalTotalPrice}</span> €</p>
                 </div>`;
-                
-                getBasketItems.insertAdjacentHTML('beforeend', cart_price);
+
+                getBasketItems.insertAdjacentHTML ('beforeend', cart_price);
             };
             totalOrderPrice();
+
 
 // *************************** Partie formulaire *******************************************
 
