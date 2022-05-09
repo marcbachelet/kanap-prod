@@ -141,6 +141,9 @@ fetch('http://localhost:3000/api/products')
             // }
 
 // *************************** Calcul prix total *******************************************
+    
+            let finalTotalPrice;
+            let finalTotalQuantity;
 
             let totalOrderPrice = () => {
 
@@ -158,16 +161,17 @@ fetch('http://localhost:3000/api/products')
                 finalTotalPrice = totalBasketPrice.reduce(reducer, 0);
 
                 //Nombre d'article dans getBasket
-                let finalTotalQuantity = getBasket.length;
+                finalTotalQuantity = getBasket.length;
 
-                // Insertion du html div cart_price
+            };
+            totalOrderPrice();
+    
+            // Insertion du html div cart_price
                 let cart_price = `<div class="cart__price">
                 <p>Total (<span id="totalQuantity">${finalTotalQuantity}</span> articles) : <span id="totalPrice">${finalTotalPrice}</span> €</p>
                 </div>`;
 
                 getBasketItems.insertAdjacentHTML ('beforeend', cart_price);
-            };
-            totalOrderPrice();
 
 
 // *************************** Partie formulaire *******************************************
