@@ -1,107 +1,127 @@
 /** 
  * Fetch api pour récupérer les données des produits
- * Récupere le localStorage
  */
+
 fetch('http://localhost:3000/api/products')
-    .then(response => response.json())
-    .then(data => {
+    .then (res => res.json())
+    .then (data =>  {
         
+/**
+ * Récupérer les données dans locaStorage
+ */
 
-        // recuperer les donnees localStorage
-        let getBasket = JSON.parse(localStorage.getItem("basket"));
+let getBasket = JSON.parse(localStorage.getItem("basket"));
 
-        // Création partie récapitulatif panier
-        let getBasketItems = document.getElementById('cart__items');
-        let panier = []; 
+/**
+ * Récupérer les données du fetch 
+ * Besoin de parcourir getBasket pour avoir donnée localStorage
+ * et merge les 2 tableau avec le spread Operator
+ */
 
-            for(let item of getBasket) {
-                    panier += `<article class="cart__item" data-id="${item.id}" data-color="${item.color}">
-    
+let mergeArray = (fetch, basket) => basket.map(item => 
+    ({...fetch.find((data) => data._id === item.id),...item}));
+
+let productData = mergeArray(data, getBasket);
+
+/**
+ * Insert HTML récapitulatif panier avec données tableau productData
+ */
+
+let getBasketItems = document.getElementById('cart__items');
+let panier = [];
+
+            productData.forEach ((item) => {
+
+                panier += `<article class="cart__item" data-id="${item.id}" data-color="${item.color}">
                     <div class="cart__item__img">
-                        <img src="${item.image}" alt="${item.altTxt}">
-                    </div>
-    
-                    <div class="cart__item__content">
+                            <img src="${item.imageUrl}" alt="${item.altTxt}">
+                        </div>
+                        <div class="cart__item__content">
                         <div class="cart__item__content__description">
                             <h2>${item.name}</h2>
-                                <p>${item.color}</p>
-                                <p>${item.price} €</p>
-                            </div>
-    
-                    <div class="cart__item__content__settings">
-                        <div class="cart__item__content__settings__quantity">
+                            <p>${item.color}</p>
+                            <p>${item.price * item.quantity} €</p>
+                        </div>
+                        <div class="cart__item__content__settings">
+                            <div class="cart__item__content__settings__quantity">
                             <p>Qté : </p>
                             <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${item.quantity}">
-                        </div>
-                        <div class="cart__item__content__settings__delete">
+                            </div>
+                            <div class="cart__item__content__settings__delete">
                             <p class="deleteItem">Supprimer</p>
                             </div>
                         </div>
-                    </div>
-                    </article>`;
-                    getBasketItems.innerHTML = panier;
-            };
+                        </div>
+                    </article>`
+            });
+                        
+        getBasketItems.insertAdjacentHTML('beforeend', panier);
 
-// ******************************* Actualiser prix et quantité *******************************
 
-            // Besoin de ces variables dans fonction removeKanap()
-            // Récuperer id du kanap
-            let articleId = "";
 
-            // Récuperer la couleur du kanap
-            let articleColor = "";
+/**
+ * Actualiser le prix et les quantité 
+ */
 
-            let changeQuantityAndPrice = () => {
+// Besoin des variables articleId et articleColor dans fonction removeKanap()
+// Récuperer id du kanap
+let articleId = "";
 
-                // Récuperer les articles dans getBasket 
-                let articleData = document.querySelectorAll('article');
+// Récuperer la couleur du kanap
+let articleColor = "";
 
-                // Récuperer la quantité des articles
-                let itemQuantity = document.querySelectorAll('input.itemQuantity');
+    let changeQuantityAndPrice = () => {
+
+    // Récuperer les articles dans getBasket 
+    let articleData = document.querySelectorAll('article');
+
+    // Récuperer la quantité des articles
+    let itemQuantity = document.querySelectorAll('input.itemQuantity');
                 
-                    // Variable prix unitaire
-                    let articlePrice = "";
+    // Variable prix unitaire
+    let articlePrice = "";
 
-                    // Variable quantité total par kanap
-                    let quantityValue = "";
+    // Variable quantité total par kanap
+    let quantityValue = "";
 
-                    // récuperer quantity value
-                    itemQuantity.forEach((itemValue) => {
-                        itemValue.addEventListener('change', () => {                     
-                            quantityValue = itemValue.value;                                   
-                        })
-                    })
+    // récuperer quantity value
+        itemQuantity.forEach((itemValue) => {
+            itemValue.addEventListener('change', () => {                     
+                quantityValue = Number(itemValue.value);                                  
+            })
+        })
 
-                    // Récuperer dataset et prix kanap unitaire
-                    articleData.forEach((article, i) => {
-                        article.addEventListener('change', () => {
-                            articleId = article.dataset.id;
-                            articleColor = article.dataset.color;
+    // Récuperer dataset et prix kanap unitaire
+        articleData.forEach((article, i) => {
+            article.addEventListener('change', () => {
+                articleId = article.dataset.id;
+                articleColor = article.dataset.color;
 
-                            for(let product of data) {
-                                if(product._id == articleId) {
-                                    articlePrice = product.price;
-                                }
-                            }
+                for(let product of data) {
+                    if(product._id == articleId) {
+                        articlePrice = product.price;
+                    }
+                }
 
-                            for(i = 0; i < getBasket.length; i++) {
-                                if(getBasket[i].id == articleId && getBasket[i].color == articleColor) {
-                                    getBasket[i].quantity = quantityValue;
-                                    getBasket[i].price = document.querySelectorAll('.cart__item__content__description p:last-child')[i].textContent = articlePrice * getBasket[i].quantity;
-                                    localStorage.setItem("basket", JSON.stringify(getBasket));
-                                    totalOrderPrice();
-                                    document.getElementById('totalPrice').textContent = finalTotalPrice;
-                                }
-                            }
-                        })
+                for(i = 0; i < productData.length; i++) {
+                    if(productData[i]._id == articleId && productData[i].color == articleColor) {
+                        getBasket[i].quantity = quantityValue;
+                        productData[i].price = document.querySelectorAll('.cart__item__content__description p:last-child')[i].textContent = articlePrice * quantityValue;
+                        localStorage.setItem("basket", JSON.stringify(getBasket));
+                        totalOrderPrice();
+                        document.getElementById('totalPrice').textContent = finalTotalPrice;
+                    }
+                }
+            })
+        })
+    };
+    changeQuantityAndPrice();
 
-                    })
-            };
-            changeQuantityAndPrice();
+/**
+ * Supprime un article et clear localStorage après avoir supprimer le dernier kanap 
+ */
 
-// *************************** Supprimer un article *******************************************
-
-            let newBasket = [];
+let newBasket = [];
 
             let removeKanap = () => {
 
@@ -109,69 +129,68 @@ fetch('http://localhost:3000/api/products')
                 let deleteKanap = document.querySelectorAll('.deleteItem');
                 
                 deleteKanap.forEach((kanap, i) => {
-                    kanap.addEventListener('click', () => {
+                    kanap.addEventListener('click', (e) => {
                         // Récupére articleId et articleColor au click pour comparer avec getBasket
                         articleId = getBasket[i].id;
                         articleColor = getBasket[i].color;
-                        if (getBasket.length == 1) {
+                        if (getBasket.length == 1 || newBasket.length == 1) {
+                            if(confirm(`Il n'y a que 1 kanap dans votre panier.\n\nEtes-vous sûr de vouloir vider votre panier ?\n\nPour vider votre panier et être rediriger vers la page d'accueil cliquez sur OK, sinon cliquez sur Annuler pour rester sur la page panier et valider votre commande.`)) {
+                            e.target.parentElement.parentElement.parentElement.parentElement.remove();
                             localStorage.clear();
-                            location.href = "cart.html";
+                            location.href = "index.html"
+                            } else {
+                                document.location;
+                            }
+
                         } else {
                             newBasket = getBasket.filter(el => {
-                                if (articleId != el.id || articleColor != el.color) {
+                                if (articleId != el.id || articleColor != el.color) {     
                                     return true;
                                     }
                                 })
+                                e.target.parentElement.parentElement.parentElement.parentElement.remove();
                                 localStorage.setItem("basket", JSON.stringify(newBasket));
-                                location.href = "cart.html";
+                                getBasket = newBasket;
+                                totalOrderPrice();
+                                document.getElementById('totalPrice').textContent = finalTotalPrice;
+                                document.getElementById('totalQuantity').textContent = finalTotalQuantity;
                             }
-                        })
                     })
-                };
+                })
+            };
             removeKanap();
 
-//**************************** Demande confirmation de supprimer un kanap *****************
+/**
+ * calcul du prix total de la commande
+ */
 
-            // let confirmRemoveKanap = () => {
-            //     if(confirm(`Etes-vous sûr de vouloir supprimer cet article de votre panier.\n Pour supprimer cet article cliquez sur OK sinon Cliquez sur Annuler pour valider votre panier.`)) {
-            //         location.href = "cart.html";
-            //     } else {
-            //         location.href = "cart.html";
-            //     }
-            // }
-
-// *************************** Calcul prix total *******************************************
-    
-            let finalTotalPrice;
-            let finalTotalQuantity;
+let finalTotalPrice;
+let finalTotalQuantity;
 
             let totalOrderPrice = () => {
 
-                // Calcul du montant total du panier
-                let totalBasketPrice = [];
+                    let tempTotal = 0;
+                    productData.map(item => {
+                        tempTotal += item.price * item.quantity;
+                    })
+                    finalTotalPrice = tempTotal;
 
-                // Parcours du tableau getBasket pour récupérer les prix
-                for(let item of getBasket) {
-                    let basketKanapPrice = item.price;
-                    totalBasketPrice.push(basketKanapPrice);
-                }
-
-                // Addition des prix dans tableau totalBasketPrice avec reduce
-                let reducer = (accumulator, currentValue) => accumulator + currentValue;
-                finalTotalPrice = totalBasketPrice.reduce(reducer, 0);
-
-                //Nombre d'article dans getBasket
-                finalTotalQuantity = getBasket.length;
+                    //Nombre d'article dans getBasket
+                    finalTotalQuantity = getBasket.length;
+                    console.log(finalTotalQuantity);
 
             };
             totalOrderPrice();
     
             // Insertion du html div cart_price
-                let cart_price = `<div class="cart__price">
-                <p>Total (<span id="totalQuantity">${finalTotalQuantity}</span> articles) : <span id="totalPrice">${finalTotalPrice}</span> €</p>
-                </div>`;
 
-                getBasketItems.insertAdjacentHTML ('beforeend', cart_price);
+                let cartPrice = 
+                    `<div class="cart__price">
+                    <p>Total (<span id="totalQuantity">${finalTotalQuantity}</span> articles) : <span id="totalPrice">${finalTotalPrice}</span> €</p>
+                    </div>`;
+                
+
+                getBasketItems.insertAdjacentHTML ('beforeend', cartPrice);
 
 
 // *************************** Partie formulaire *******************************************
@@ -212,6 +231,9 @@ fetch('http://localhost:3000/api/products')
 
                         getBasketItems.insertAdjacentHTML('beforeend', formHtml);
 
+
+                // Validation formulaire avant envoi
+
                 // Récupere partie input label firstName
                 let formFirstName = document.getElementById('firstName');
 
@@ -234,7 +256,7 @@ fetch('http://localhost:3000/api/products')
                     if(testFirstName) {
                         msgErrorFirstName.textContent = 'Prénom valide';
                     } else {
-                         msgErrorFirstName.textContent = 'Veuillez renseigner votre prénom';
+                        msgErrorFirstName.textContent = 'Veuillez renseigner votre prénom';
                     }
                 };
 
@@ -345,6 +367,9 @@ fetch('http://localhost:3000/api/products')
                 let order = document.getElementById('order');
                 order.addEventListener('click', (e) => {
                     e.preventDefault();
+
+                    if (testFirstName && testLastName && testAdress && testCity && testEmail) {
+
                     let contact = {
                         firstName: firstName.value,
                         lastName: lastName.value,
@@ -365,7 +390,7 @@ fetch('http://localhost:3000/api/products')
                         products: products
                     }
 
-                    fetch('http://localhost:3000/api/products/order', {
+                        fetch('http://localhost:3000/api/products/order', {
                         method: 'POST',
                         headers: {
                             'content-type': 'application/json'
@@ -374,11 +399,17 @@ fetch('http://localhost:3000/api/products')
                         })
                         .then(response => response.json())
                         .then(data => {
+                            console.log("J'ai une réponse!");
+                            console.log(data);
                             localStorage.clear();
                             location.href = `confirmation.html?orderId=${data.orderId}`;
                         })
                         .catch(erreur => console.log('Erreur: ' + erreur));
-                    })
+                    } else {
+                        alert("Veuillez remplir les champs manquant du formulaire pour pouvoir valider votre commande.");
+                    }
+                    
+                })
     })
     .catch(erreur => console.log('Erreur: ' + erreur));
 
