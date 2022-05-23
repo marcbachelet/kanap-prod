@@ -18,6 +18,12 @@ let getBasket = JSON.parse(localStorage.getItem("basket"));
  * et merge les 2 tableau avec le spread Operator
  */
 
+/**
+ * 
+ * encapsuler ligne 20 a 59 dans une fonction et actualiser productdata
+ */
+
+
 let mergeArray = (fetch, basket) => basket.map(item => 
     ({...fetch.find((data) => data._id === item.id),...item}));
 
