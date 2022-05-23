@@ -55,13 +55,13 @@ fetch(`http://localhost:3000/api/products/${id}`)
                 color: colorSelect.value,
                 quantity: quantitySelect.value
             }
-           
+
             // Fonction fenêtre de confirmation aller page panier ou revenir page accueil
             let confirmBasket = () => {
-                    if(confirm(`Votre panier contient ${productSelect["quantity"]} ${data["name"]} de couleur ${productSelect["color"]}. cliquez sur OK pour consulter votre panier ou cliquez sur Annuler pour rester sur la page ou vous êtes.`)) {
+                    if(confirm(`Votre panier contient ${productSelect["quantity"]} ${data["name"]} de couleur ${productSelect["color"]}. cliquez sur OK pour consulter votre panier ou cliquez sur Annuler pour retourner sur la page d'accueil.`)) {
                         document.location.href = "cart.html";
                     } else {
-                        document.location;
+                        document.location.href = "index.html";
                     }
                 }
 

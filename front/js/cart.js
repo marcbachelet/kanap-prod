@@ -177,7 +177,6 @@ let finalTotalQuantity;
 
                     //Nombre d'article dans getBasket
                     finalTotalQuantity = getBasket.length;
-                    console.log(finalTotalQuantity);
 
             };
             totalOrderPrice();
@@ -424,4 +423,3 @@ let finalTotalQuantity;
             
             
 
-   
