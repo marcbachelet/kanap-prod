@@ -116,6 +116,10 @@ h2 {
 	font-size: 15px;
 	margin-left: 8px;
 }
+.cart__order__form__question p.ok{
+	color: #34db77;
+
+}
 .cart__order__form__submit {
 	display: flex;
 	justify-content: center;

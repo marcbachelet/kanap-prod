@@ -1,212 +1,216 @@
-/** 
+/**
  * Fetch api pour récupérer les données des produits
  */
 
-fetch('http://localhost:3000/api/products')
-    .then (res => res.json())
-    .then (data =>  {
-        
-/**
- * Récupérer les données dans locaStorage
- */
+fetch("http://localhost:3000/api/products")
+  .then((res) => res.json())
+  .then((data) => {
+    /**
+     * Récupérer les données dans locaStorage
+     */
 
-let getBasket = JSON.parse(localStorage.getItem("basket"));
+    let getBasket = JSON.parse(localStorage.getItem("basket"));
 
-/**
- * Récupérer les données du fetch 
- * Besoin de parcourir getBasket pour avoir donnée localStorage
- * et merge les 2 tableau avec le spread Operator
- */
+    /**
+     * Récupérer les données du fetch
+     * Besoin de parcourir getBasket pour avoir donnée localStorage
+     * et merge les 2 tableau avec le spread Operator
+     */
 
-/**
- * 
- * encapsuler ligne 20 a 59 dans une fonction et actualiser productdata
- */
+    let mergeArray = (fetch, basket) =>
+      basket.map((item) => ({
+        ...fetch.find((data) => data._id === item.id),
+        ...item,
+      }));
 
+    let productData = mergeArray(data, getBasket);
 
-let mergeArray = (fetch, basket) => basket.map(item => 
-    ({...fetch.find((data) => data._id === item.id),...item}));
+    /**
+     * Insert HTML récapitulatif panier avec données tableau productData
+     */
 
-let productData = mergeArray(data, getBasket);
+    let getBasketItems = document.getElementById("cart__items");
+    let panier = [];
 
-/**
- * Insert HTML récapitulatif panier avec données tableau productData
- */
-
-let getBasketItems = document.getElementById('cart__items');
-let panier = [];
-
-            productData.forEach ((item) => {
-
-                panier += `<article class="cart__item" data-id="${item.id}" data-color="${item.color}">
-                    <div class="cart__item__img">
-                            <img src="${item.imageUrl}" alt="${item.altTxt}">
-                        </div>
-                        <div class="cart__item__content">
-                        <div class="cart__item__content__description">
-                            <h2>${item.name}</h2>
-                            <p>${item.color}</p>
-                            <p>${item.price * item.quantity} €</p>
-                        </div>
-                        <div class="cart__item__content__settings">
-                            <div class="cart__item__content__settings__quantity">
-                            <p>Qté : </p>
-                            <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${item.quantity}">
+    productData.forEach((item) => {
+      panier += `<article class="cart__item" data-id="${item.id}" data-color="${
+        item.color
+      }">
+                        <div class="cart__item__img">
+                                <img src="${item.imageUrl}" alt="${
+        item.altTxt
+      }">
                             </div>
-                            <div class="cart__item__content__settings__delete">
-                            <p class="deleteItem">Supprimer</p>
+                            <div class="cart__item__content">
+                            <div class="cart__item__content__description">
+                                <h2>${item.name}</h2>
+                                <p>${item.color}</p>
+                                <p>${item.price * item.quantity} €</p>
                             </div>
-                        </div>
-                        </div>
-                    </article>`
-            });
-                        
-        getBasketItems.insertAdjacentHTML('beforeend', panier);
+                            <div class="cart__item__content__settings">
+                                <div class="cart__item__content__settings__quantity">
+                                <p>Qté : </p>
+                                <input type="number" class="itemQuantity" name="itemQuantity" min="1" max="100" value="${
+                                  item.quantity
+                                }">
+                                </div>
+                                <div class="cart__item__content__settings__delete">
+                                <p class="deleteItem">Supprimer</p>
+                                </div>
+                            </div>
+                            </div>
+                        </article>`;
+    });
 
+    getBasketItems.insertAdjacentHTML("beforeend", panier);
 
+    /**
+     * Actualiser le prix et les quantité
+     */
 
-/**
- * Actualiser le prix et les quantité 
- */
+    // Besoin des variables articleId et articleColor dans fonction removeKanap()
+    // Récuperer id du kanap
+    let articleId = "";
 
-// Besoin des variables articleId et articleColor dans fonction removeKanap()
-// Récuperer id du kanap
-let articleId = "";
-
-// Récuperer la couleur du kanap
-let articleColor = "";
+    // Récuperer la couleur du kanap
+    let articleColor = "";
 
     let changeQuantityAndPrice = () => {
+      // Récuperer les articles dans getBasket
+      let articleData = document.querySelectorAll("article");
 
-    // Récuperer les articles dans getBasket 
-    let articleData = document.querySelectorAll('article');
+      // Récuperer la quantité des articles
+      let itemQuantity = document.querySelectorAll("input.itemQuantity");
 
-    // Récuperer la quantité des articles
-    let itemQuantity = document.querySelectorAll('input.itemQuantity');
-                
-    // Variable prix unitaire
-    let articlePrice = "";
+      // Variable prix unitaire
+      let articlePrice = "";
 
-    // Variable quantité total par kanap
-    let quantityValue = "";
+      // Variable quantité total par kanap
+      let quantityValue = "";
 
-    // récuperer quantity value
-        itemQuantity.forEach((itemValue) => {
-            itemValue.addEventListener('change', () => {                     
-                quantityValue = Number(itemValue.value);                                  
-            })
-        })
+      // récuperer quantity value
+      itemQuantity.forEach((itemValue) => {
+        itemValue.addEventListener("change", () => {
+          quantityValue = Number(itemValue.value);
+        });
+      });
 
-    // Récuperer dataset et prix kanap unitaire
-        articleData.forEach((article, i) => {
-            article.addEventListener('change', () => {
-                articleId = article.dataset.id;
-                articleColor = article.dataset.color;
+      // Récuperer dataset et prix kanap unitaire
+      articleData.forEach((article, i) => {
+        article.addEventListener("change", () => {
+          articleId = article.dataset.id;
+          articleColor = article.dataset.color;
 
-                for(let product of data) {
-                    if(product._id == articleId) {
-                        articlePrice = product.price;
-                    }
-                }
+          for (let product of data) {
+            if (product._id == articleId) {
+              articlePrice = product.price;
+            }
+          }
 
-                for(i = 0; i < productData.length; i++) {
-                    if(productData[i]._id == articleId && productData[i].color == articleColor) {
-                        getBasket[i].quantity = quantityValue;
-                        productData[i].price = document.querySelectorAll('.cart__item__content__description p:last-child')[i].textContent = articlePrice * quantityValue;
-                        localStorage.setItem("basket", JSON.stringify(getBasket));
-                        totalOrderPrice();
-                        document.getElementById('totalPrice').textContent = finalTotalPrice;
-                    }
-                }
-            })
-        })
+          for (i = 0; i < productData.length; i++) {
+            if (
+              productData[i]._id == articleId &&
+              productData[i].color == articleColor
+            ) {
+              getBasket[i].quantity = quantityValue;
+              productData[i].price = document.querySelectorAll(
+                ".cart__item__content__description p:last-child"
+              )[i].textContent = articlePrice * quantityValue;
+              localStorage.setItem("basket", JSON.stringify(getBasket));
+              productData = mergeArray(data, getBasket);
+              totalOrderPrice();
+              document.getElementById("totalPrice").textContent =
+                finalTotalPrice;
+            }
+          }
+        });
+      });
     };
     changeQuantityAndPrice();
 
-/**
- * Supprime un article et clear localStorage après avoir supprimer le dernier kanap 
- */
+    /**
+     * Supprime un article et clear localStorage après avoir supprimer le dernier kanap
+     */
 
-let newBasket = [];
+    let newBasket = [];
 
-            let removeKanap = () => {
+    let removeKanap = () => {
+      // Récupére tous les p class deletItem
+      let deleteKanap = document.querySelectorAll(".deleteItem");
 
-                // Récupére tous les p class deletItem
-                let deleteKanap = document.querySelectorAll('.deleteItem');
-                
-                deleteKanap.forEach((kanap, i) => {
-                    kanap.addEventListener('click', (e) => {
-                        // Récupére articleId et articleColor au click pour comparer avec getBasket
-                        articleId = getBasket[i].id;
-                        articleColor = getBasket[i].color;
-                        if (getBasket.length == 1 || newBasket.length == 1) {
-                            if(confirm(`Il n'y a que 1 kanap dans votre panier.\n\nEtes-vous sûr de vouloir vider votre panier ?\n\nPour vider votre panier et être rediriger vers la page d'accueil cliquez sur OK, sinon cliquez sur Annuler pour rester sur la page panier et valider votre commande.`)) {
-                            e.target.parentElement.parentElement.parentElement.parentElement.remove();
-                            localStorage.clear();
-                            location.href = "index.html"
-                            } else {
-                                document.location;
-                            }
-
-                        } else {
-                            newBasket = getBasket.filter(el => {
-                                if (articleId != el.id || articleColor != el.color) {     
-                                    return true;
-                                    }
-                                })
-                                e.target.parentElement.parentElement.parentElement.parentElement.remove();
-                                localStorage.setItem("basket", JSON.stringify(newBasket));
-                                getBasket = newBasket;
-                                totalOrderPrice();
-                                document.getElementById('totalPrice').textContent = finalTotalPrice;
-                                document.getElementById('totalQuantity').textContent = finalTotalQuantity;
-                            }
-                    })
-                })
-            };
-            removeKanap();
-
-/**
- * calcul du prix total de la commande
- */
-
-let finalTotalPrice;
-let finalTotalQuantity;
-
-            let totalOrderPrice = () => {
-
-                    let tempTotal = 0;
-                    productData.map(item => {
-                        tempTotal += item.price * item.quantity;
-                    })
-                    finalTotalPrice = tempTotal;
-
-                    //Nombre d'article dans getBasket
-                    finalTotalQuantity = getBasket.length;
-
-            };
+      deleteKanap.forEach((kanap, i) => {
+        kanap.addEventListener("click", (e) => {
+          // Récupére articleId et articleColor au click pour comparer avec getBasket
+          articleId = getBasket[i].id;
+          articleColor = getBasket[i].color;
+          if (getBasket.length == 1 || newBasket.length == 1) {
+            if (
+              confirm(
+                `Il n'y a que 1 kanap dans votre panier.\n\nEtes-vous sûr de vouloir vider votre panier ?\n\nPour vider votre panier et être rediriger vers la page d'accueil cliquez sur OK, sinon cliquez sur Annuler pour rester sur la page panier et valider votre commande.`
+              )
+            ) {
+              e.target.parentElement.parentElement.parentElement.parentElement.remove();
+              localStorage.clear();
+              location.href = "index.html";
+            } else {
+              document.location;
+            }
+          } else {
+            newBasket = getBasket.filter((el) => {
+              if (articleId != el.id || articleColor != el.color) {
+                return true;
+              }
+            });
+            e.target.parentElement.parentElement.parentElement.parentElement.remove();
+            localStorage.setItem("basket", JSON.stringify(newBasket));
+            getBasket = newBasket;
+            productData = mergeArray(data, getBasket);
             totalOrderPrice();
-    
-            // Insertion du html div cart_price
+            document.getElementById("totalPrice").textContent = finalTotalPrice;
+            document.getElementById("totalQuantity").textContent =
+              finalTotalQuantity;
+          }
+        });
+      });
+    };
+    removeKanap();
 
-                let cartPrice = 
-                    `<div class="cart__price">
+    /**
+     * calcul du prix total de la commande
+     */
+
+    let finalTotalPrice;
+    let finalTotalQuantity;
+
+    let totalOrderPrice = () => {
+      let tempTotal = 0;
+      productData.forEach((item) => {
+        tempTotal += item.price * item.quantity;
+      });
+      finalTotalPrice = tempTotal;
+
+      //Nombre d'article dans getBasket
+      finalTotalQuantity = getBasket.length;
+    };
+    totalOrderPrice();
+
+    // Insertion du html div cart_price
+
+    let cartPrice = `<div class="cart__price">
                     <p>Total (<span id="totalQuantity">${finalTotalQuantity}</span> articles) : <span id="totalPrice">${finalTotalPrice}</span> €</p>
                     </div>`;
-                
 
-                getBasketItems.insertAdjacentHTML ('beforeend', cartPrice);
+    getBasketItems.insertAdjacentHTML("beforeend", cartPrice);
 
+    // *************************** Partie formulaire *******************************************
 
-// *************************** Partie formulaire *******************************************
-
-            // Insertion du formulaire
-            let formHtml = `<div class="cart__order">
+    // Insertion du formulaire
+    let formHtml = `<div class="cart__order">
                             <form method="get" class="cart__order__form">
                                 <div class="cart__order__form__question">
                                     <label for="firstName">Prénom: </label>
                                     <input type="text" name="firstName" id="firstName" required>
-                                    <p id="firstNameErrorMsg">ceci est un message d'erreur</p>
+                                    <p id="firstNameErrorMsg"></p>
                                 </div>
                                 <div class="cart__order__form__question">
                                     <label for="lastName">Nom: </label>
@@ -234,198 +238,207 @@ let finalTotalQuantity;
                             </form>
                         </div>`;
 
-                        getBasketItems.insertAdjacentHTML('beforeend', formHtml);
+    getBasketItems.insertAdjacentHTML("beforeend", formHtml);
 
+    // Validation formulaire avant envoi
 
-                // Validation formulaire avant envoi
+    // Récupere partie input label firstName
+    let formFirstName = document.getElementById("firstName");
 
-                // Récupere partie input label firstName
-                let formFirstName = document.getElementById('firstName');
+    // Ecoute evenement change sur label firstName
+    formFirstName.addEventListener("change", function () {
+      validFirstName(this);
+    });
 
-                // Ecoute evenement change sur label firstName
-                formFirstName.addEventListener('change', function() {
-                    validFirstName(this);
-                });
+    // validation firstName
+    let testFirstName = "";
+    let validFirstName = function (inputFirstName) {
+      let firstNameRegExp = new RegExp(
+        "^[a-z]+[ -]?[[a-z]+[ -]?]*[a-z]+$",
+        "gi"
+      );
+      testFirstName = firstNameRegExp.test(inputFirstName.value);
 
-                // validation firstName
-                let testFirstName = "";
-                let validFirstName = function(inputFirstName) {
-                    let firstNameRegExp = new RegExp("^[a-z]+[ \-]?[[a-z]+[ \-]?]*[a-z]+$", "gi");
-                        testFirstName = firstNameRegExp.test(inputFirstName.value);
+      // Récupere message erreur label firstName
+      let msgErrorFirstName = document.getElementById("firstNameErrorMsg");
 
-                // Récupere message erreur label firstName
-                let msgErrorFirstName = document.getElementById('firstNameErrorMsg');
-                msgErrorFirstName.textContent = " ";
+      // Test si firstName valid et insert message selon résultat test
+      if (testFirstName) {
+        msgErrorFirstName.classList.add("ok");
+        msgErrorFirstName.textContent = "Prénom valide";
+      } else {
+        msgErrorFirstName.classList.remove("ok");
+        msgErrorFirstName.textContent = "Veuillez renseigner votre prénom";
+      }
+    };
 
-                // Test si firstName valid
-                    if(testFirstName) {
-                        msgErrorFirstName.textContent = 'Prénom valide';
-                    } else {
-                        msgErrorFirstName.textContent = 'Veuillez renseigner votre prénom';
-                    }
-                };
+    // Récupere partie input label lastName
+    let formLastName = document.getElementById("lastName");
 
+    // Ecoute evenement change sur label lastName
+    formLastName.addEventListener("change", function () {
+      validLastName(this);
+    });
 
-                // Récupere partie input label lastName
-                let formLastName = document.getElementById('lastName');
+    // validation lastName
+    let testLastName = "";
+    let validLastName = function (inputLastName) {
+      let lastNameRegExp = new RegExp(
+        "^[a-z]+[ -]?[[a-z]+[ -]?]*[a-z]+$",
+        "gi"
+      );
+      testLastName = lastNameRegExp.test(inputLastName.value);
 
-                // Ecoute evenement change sur label lastName
-                formLastName.addEventListener('change', function() {
-                    validLastName(this);
-                });
+      // Récupere message erreur label lastName
+      let msgErrorLastName = document.getElementById("lastNameErrorMsg");
 
-                // validation lastName
-                let testLastName = "";
-                let validLastName = function(inputLastName) {
-                    let lastNameRegExp = new RegExp("^[a-z]+[ \-]?[[a-z]+[ \-]?]*[a-z]+$", "gi");
-                        testLastName = lastNameRegExp.test(inputLastName.value);
+      // Test si lastName valid et insert message selon résultat test
+      if (testLastName) {
+        msgErrorLastName.classList.add("ok");
+        msgErrorLastName.textContent = "Nom valide";
+      } else {
+        msgErrorLastName.classList.remove("ok");
+        msgErrorLastName.textContent = "Veuillez renseigner votre nom";
+      }
+    };
 
-                // Récupere message erreur label lastName
-                let msgErrorLastName = document.getElementById('lastNameErrorMsg');
+    // Récupere partie input label adresse
+    let formAdress = document.getElementById("address");
 
-                // Test si lastName valid
-                if(testLastName) {
-                    msgErrorLastName.textContent = 'Nom valide';
-                    } else {
-                    msgErrorLastName.textContent = 'Veuillez renseigner votre nom';
-                    }
-                };
+    // Ecoute evenement change sur label adresse
+    formAdress.addEventListener("change", function () {
+      validAdress(this);
+    });
 
-                // Récupere partie input label adresse
-                let formAdress = document.getElementById('address');
+    // validation adresse
+    let testAdress = "";
+    let validAdress = function (inputAdress) {
+      let adressRegExp = new RegExp("^([0-9]{1,4})([a-zA-Z,-. ]{5,})+$", "gi");
+      testAdress = adressRegExp.test(inputAdress.value);
 
-                // Ecoute evenement change sur label adresse
-                formAdress.addEventListener('change', function() {
-                    validAdress(this);
-                });
+      // Récupere message erreur label adresse
+      let msgErrorAdress = document.getElementById("addressErrorMsg");
 
-                // validation adresse
-                let testAdress = "";
-                let validAdress = function(inputAdress) {
-                    let adressRegExp = new RegExp("^[0-9a-zA-Z,-_. ]+$", "gi");
-                        testAdress = adressRegExp.test(inputAdress.value);
+      // Test si adresse valid et insert message selon résultat test
+      if (testAdress) {
+        msgErrorAdress.classList.add("ok");
+        msgErrorAdress.textContent = "Adresse valide";
+      } else {
+        msgErrorAdress.classList.remove("ok");
+        msgErrorAdress.textContent = "Votre adresse est non valide";
+      }
+    };
 
-                // Récupere message erreur label adresse
-                let msgErrorAdress = document.getElementById('addressErrorMsg');
+    // Récupere partie input label ville
+    let formCity = document.getElementById("city");
 
-                // Test si adresse valid
-                    if(testAdress) {
-                        msgErrorAdress.textContent = 'Adresse valide';
-                    } else {
-                        msgErrorAdress.textContent = 'Votre adresse est non valide';
-                    }
-                };
+    // Ecoute evenement change sur label ville
+    formCity.addEventListener("change", function () {
+      validCity(this);
+    });
 
-                // Récupere partie input label ville
-                let formCity = document.getElementById('city');
+    // validation ville
+    let testCity = "";
+    let validCity = function (inputCity) {
+      let cityRegExp = new RegExp("^[a-zA-Z-_. ]+$", "gi");
+      testCity = cityRegExp.test(inputCity.value);
 
-                // Ecoute evenement change sur label ville
-                formCity.addEventListener('change', function() {
-                    validCity(this);
-                });
+      // Récupere message erreur label city
+      let msgErrorCity = document.getElementById("cityErrorMsg");
 
-                // validation ville
-                let testCity = "";
-                let validCity = function(inputCity) {
-                    let cityRegExp = new RegExp("^[a-zA-Z-_. ]+$", "gi");
-                        testCity = cityRegExp.test(inputCity.value);
+      // Test si city valid et insert message selon résultat test
+      if (testCity) {
+        msgErrorCity.classList.add("ok");
+        msgErrorCity.textContent = "Ville valide";
+      } else {
+        msgErrorCity.classList.remove("ok");
+        msgErrorCity.textContent = "Veuillez renseigner le nom de votre ville";
+      }
+    };
 
-                // Récupere message erreur label city
-                let msgErrorCity = document.getElementById('cityErrorMsg');
+    // Récupere partie input label email
+    let formEmail = document.getElementById("email");
 
-                // Test si city valid
-                    if(testCity) {
-                        msgErrorCity.textContent = 'Ville valide';
-                    } else {
-                        msgErrorCity.textContent = 'Veuillez renseigner le nom de votre ville';
-                    }
-                };
+    // Ecoute evenement change sur label email
+    formEmail.addEventListener("change", function () {
+      validEmail(this);
+    });
 
-                // Récupere partie input label email
-                let formEmail = document.getElementById('email');
+    // Validation email
+    let testEmail = "";
+    let validEmail = function (inputEmail) {
+      let emailRegExp = new RegExp(
+        "^[a-zA-Z0-9_-]+@[a-zA-Z0-9-]{2,}[.][a-zA-Z]{2,3}$"
+      );
+      testEmail = emailRegExp.test(inputEmail.value);
 
-                // Ecoute evenement change sur label email
-                formEmail.addEventListener('change', function() {
-                    validEmail(this);
-                });
+      // Récupere message erreur label email
+      let msgErrorEmail = document.getElementById("emailErrorMsg");
 
-                // Validation email
-                let testEmail = "";
-                let validEmail = function(inputEmail) {
-                    let emailRegExp = new RegExp('^[a-zA-Z0-9_-]+@[a-zA-Z0-9-]{2,}[.][a-zA-Z]{2,3}$');
-                        testEmail = emailRegExp.test(inputEmail.value);
+      // Test si email valid et insert message selon résultat test
+      if (testEmail) {
+        msgErrorEmail.classList.add("ok");
+        msgErrorEmail.textContent = "Email valide";
+      } else {
+        msgErrorEmail.classList.remove("ok");
+        msgErrorEmail.textContent = "Votre Email est non valide";
+      }
+    };
 
-                // Récupere message erreur label email
-                let msgErrorEmail = document.getElementById('emailErrorMsg');
+    // Requete serveur données visiteur
 
-                // Test si email valid
-                    if(testEmail) {
-                        msgErrorEmail.textContent = 'Email valide';
-                    } else {
-                        msgErrorEmail.textContent = 'Votre Email est non valide';
-                    }
-                };
+    // Ecoute bouton Commander
+    let order = document.getElementById("order");
+    order.addEventListener("click", (e) => {
+      e.preventDefault();
 
-                // Requete serveur données visiteur
+      if (
+        testFirstName &&
+        testLastName &&
+        testAdress &&
+        testCity &&
+        testEmail
+      ) {
+        let contact = {
+          firstName: firstName.value,
+          lastName: lastName.value,
+          address: address.value,
+          city: city.value,
+          email: email.value,
+        };
 
-                // Ecoute bouton Commander
-                let order = document.getElementById('order');
-                order.addEventListener('click', (e) => {
-                    e.preventDefault();
+        let products = [];
 
-                    if (testFirstName && testLastName && testAdress && testCity && testEmail) {
+        for (let item of getBasket) {
+          products.push(item.id);
+        }
 
-                    let contact = {
-                        firstName: firstName.value,
-                        lastName: lastName.value,
-                        address: address.value,
-                        city: city.value,
-                        email: email.value
-                    }
+        // Rassembler les données dans orderData
+        let orderData = {
+          contact: contact,
+          products: products,
+        };
 
-                    let products = [];
-
-                    for(let item of getBasket) {
-                        products.push(item.id);
-                    }
-
-                    // Rassembler les données dans orderData
-                    let orderData = {
-                        contact: contact,
-                        products: products
-                    }
-
-                        fetch('http://localhost:3000/api/products/order', {
-                        method: 'POST',
-                        headers: {
-                            'content-type': 'application/json'
-                        },
-                        body: JSON.stringify(orderData)
-                        })
-                        .then(response => response.json())
-                        .then(data => {
-                            console.log("J'ai une réponse!");
-                            console.log(data);
-                            localStorage.clear();
-                            location.href = `confirmation.html?orderId=${data.orderId}`;
-                        })
-                        .catch(erreur => console.log('Erreur: ' + erreur));
-                    } else {
-                        alert("Veuillez remplir les champs manquant du formulaire pour pouvoir valider votre commande.");
-                    }
-                    
-                })
-    })
-    .catch(erreur => console.log('Erreur: ' + erreur));
-
-
-
-
-
-
-                    
-
-                
-            
-            
-
+        fetch("http://localhost:3000/api/products/order", {
+          method: "POST",
+          headers: {
+            "content-type": "application/json",
+          },
+          body: JSON.stringify(orderData),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            console.log("J'ai une réponse!");
+            console.log(data);
+            localStorage.clear();
+            location.href = `confirmation.html?orderId=${data.orderId}`;
+          })
+          .catch((erreur) => console.log("Erreur: " + erreur));
+      } else {
+        alert(
+          "Veuillez remplir les champs manquant du formulaire pour pouvoir valider votre commande."
+        );
+      }
+    });
+  })
+  .catch((erreur) => console.log("Erreur: " + erreur));
