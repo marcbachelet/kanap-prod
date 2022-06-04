@@ -14,7 +14,7 @@ fetch("http://localhost:3000/api/products")
     /**
      * Récupérer les données du fetch
      * Besoin de parcourir getBasket pour avoir donnée localStorage
-     * et merge les 2 tableau avec le spread Operator
+     * et merge les 2 tableaux avec le spread Operator
      */
 
     let mergeArray = (fetch, basket) =>
@@ -68,19 +68,18 @@ fetch("http://localhost:3000/api/products")
      * Actualiser le prix et les quantité
      */
 
-    // Besoin des variables articleId et articleColor dans fonction removeKanap()
-    // Récuperer id du kanap
-    let articleId = "";
-
-    // Récuperer la couleur du kanap
-    let articleColor = "";
-
     let changeQuantityAndPrice = () => {
       // Récuperer les articles dans getBasket
       let articleData = document.querySelectorAll("article");
 
       // Récuperer la quantité des articles
       let itemQuantity = document.querySelectorAll("input.itemQuantity");
+
+      // Récuperer id du kanap
+      let articleId = "";
+
+      // Récuperer la couleur du kanap
+      let articleColor = "";
 
       // Variable prix unitaire
       let articlePrice = "";
@@ -138,12 +137,13 @@ fetch("http://localhost:3000/api/products")
       // Récupére tous les p class deletItem
       let deleteKanap = document.querySelectorAll(".deleteItem");
 
-      deleteKanap.forEach((kanap, i) => {
+      // Fait de deletKanap un tableau avec spread Operator (Pour avoir plus de choix niveau methode array même si forEach fonctionne avec les nodeList)
+      deleteKanapArray = [...deleteKanap];
+
+      deleteKanapArray.forEach((kanap) => {
         kanap.addEventListener("click", (e) => {
-          // Récupére articleId et articleColor au click pour comparer avec getBasket
-          articleId = getBasket[i].id;
-          articleColor = getBasket[i].color;
-          if (getBasket.length == 1 || newBasket.length == 1) {
+          // Clear le panier si il ne reste qu'un kanap
+          if (getBasket.length == 1) {
             if (
               confirm(
                 `Il n'y a que 1 kanap dans votre panier.\n\nEtes-vous sûr de vouloir vider votre panier ?\n\nPour vider votre panier et être rediriger vers la page d'accueil cliquez sur OK, sinon cliquez sur Annuler pour rester sur la page panier et valider votre commande.`
@@ -156,8 +156,14 @@ fetch("http://localhost:3000/api/products")
               document.location;
             }
           } else {
+            // Filtre le kanap supprimer du tableau getBasket
             newBasket = getBasket.filter((el) => {
-              if (articleId != el.id || articleColor != el.color) {
+              if (
+                e.target.parentElement.parentElement.parentElement.parentElement
+                  .dataset.id != el.id ||
+                e.target.parentElement.parentElement.parentElement.parentElement
+                  .dataset.color != el.color
+              ) {
                 return true;
               }
             });
@@ -391,7 +397,7 @@ fetch("http://localhost:3000/api/products")
     let order = document.getElementById("order");
     order.addEventListener("click", (e) => {
       e.preventDefault();
-
+      // Test si tous les champs du formulaire valent true
       if (
         testFirstName &&
         testLastName &&
@@ -418,7 +424,7 @@ fetch("http://localhost:3000/api/products")
           contact: contact,
           products: products,
         };
-
+        // Requête API n° orderId et gère erreur si besoin
         fetch("http://localhost:3000/api/products/order", {
           method: "POST",
           headers: {
@@ -428,8 +434,6 @@ fetch("http://localhost:3000/api/products")
         })
           .then((response) => response.json())
           .then((data) => {
-            console.log("J'ai une réponse!");
-            console.log(data);
             localStorage.clear();
             location.href = `confirmation.html?orderId=${data.orderId}`;
           })

@@ -56,7 +56,7 @@ fetch(`http://localhost:3000/api/products/${id}`)
         quantity: quantitySelect.value,
       };
 
-      // Fonction fenêtre de confirmation aller page panier ou revenir page accueil
+      // Fonction fenêtre de confirmation ajout kanap panier
       let confirmBasket = () => {
         alert(
           `Vous venez d'ajouter ${productSelect.quantity} ${data.name} de couleur ${productSelect.color} dans votre panier`
